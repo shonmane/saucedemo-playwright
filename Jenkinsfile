@@ -3,11 +3,11 @@ pipeline {
     // installed — this avoids flaky/slow "playwright install --with-deps"
     // steps on a bare Jenkins agent.
     agent {
-        docker {
-            image 'mcr.microsoft.com/playwright:v1.62.1-jammy'
-            args '-u root:root'
-        }
+    docker {
+        image 'node:20-jammy'
+        args '-u root:root'
     }
+}
 
     options {
         timestamps()
@@ -21,12 +21,12 @@ pipeline {
         CI = 'true'
     }
 
-    stages {
-        stage('Install dependencies') {
-            steps {
-                sh 'npm ci'
-            }
-        }
+    stage('Install dependencies') {
+    steps {
+        sh 'npm ci'
+        sh 'npx playwright install --with-deps'
+    }
+}
 
         stage('Run Playwright tests') {
             steps {
