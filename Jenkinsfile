@@ -1,11 +1,9 @@
 pipeline {
-    // Using a plain Node image from Docker Hub instead of Microsoft's
-    // Playwright image (mcr.microsoft.com) — some networks/security
-    // software break the TLS handshake to that specific registry.
-    // Browsers are installed explicitly in the "Install dependencies" stage.
+    // Custom pre-built image with Chromium + OS deps already baked in
+    // (see Dockerfile) — avoids re-downloading ~150MB+ on every build.
     agent {
         docker {
-            image 'node:20-bookworm'
+            image 'saucedemo-ci:1.62.1-all-browsers'
             args '-u root:root'
         }
     }
@@ -15,7 +13,7 @@ pipeline {
         // Keep the last 10 builds' artifacts/history around.
         buildDiscarder(logRotator(numToKeepStr: '10'))
         // Fail fast if a run hangs.
-       timeout(time: 45, unit: 'MINUTES')
+        timeout(time: 45, unit: 'MINUTES')
     }
 
     environment {
@@ -25,10 +23,9 @@ pipeline {
     stages {
         stage('Install dependencies') {
             steps {
+                // Chromium is already baked into the image — this now
+                // only installs npm packages, which is fast.
                 sh 'npm ci'
-                // node:20-bookworm has no browsers baked in, so install them
-                // (plus their OS-level dependencies) explicitly here.
-                sh 'npx playwright install --with-deps chromium'
             }
         }
 
