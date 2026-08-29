@@ -5,7 +5,7 @@ pipeline {
     // Browsers are installed explicitly in the "Install dependencies" stage.
     agent {
         docker {
-            image 'node:20-jammy'
+            image 'node:20-bookworm'
             args '-u root:root'
         }
     }
