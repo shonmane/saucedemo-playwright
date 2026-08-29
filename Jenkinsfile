@@ -1,13 +1,14 @@
 pipeline {
-    // Use the official Playwright image so browsers + OS deps are already
-    // installed — this avoids flaky/slow "playwright install --with-deps"
-    // steps on a bare Jenkins agent.
+    // Using a plain Node image from Docker Hub instead of Microsoft's
+    // Playwright image (mcr.microsoft.com) — some networks/security
+    // software break the TLS handshake to that specific registry.
+    // Browsers are installed explicitly in the "Install dependencies" stage.
     agent {
-    docker {
-        image 'node:20-jammy'
-        args '-u root:root'
+        docker {
+            image 'node:20-jammy'
+            args '-u root:root'
+        }
     }
-}
 
     options {
         timestamps()
@@ -21,12 +22,15 @@ pipeline {
         CI = 'true'
     }
 
-    stage('Install dependencies') {
-    steps {
-        sh 'npm ci'
-        sh 'npx playwright install --with-deps'
-    }
-}
+    stages {
+        stage('Install dependencies') {
+            steps {
+                sh 'npm ci'
+                // node:20-jammy has no browsers baked in, so install them
+                // (plus their OS-level dependencies) explicitly here.
+                sh 'npx playwright install --with-deps'
+            }
+        }
 
         stage('Run Playwright tests') {
             steps {
