@@ -4,7 +4,7 @@ pipeline {
     // steps on a bare Jenkins agent.
     agent {
         docker {
-            image 'mcr.microsoft.com/playwright:v1.47.0-jammy'
+            image 'mcr.microsoft.com/playwright:v1.62.1-jammy'
             args '-u root:root'
         }
     }
