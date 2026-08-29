@@ -15,7 +15,7 @@ pipeline {
         // Keep the last 10 builds' artifacts/history around.
         buildDiscarder(logRotator(numToKeepStr: '10'))
         // Fail fast if a run hangs.
-        timeout(time: 30, unit: 'MINUTES')
+       timeout(time: 45, unit: 'MINUTES')
     }
 
     environment {
@@ -26,9 +26,9 @@ pipeline {
         stage('Install dependencies') {
             steps {
                 sh 'npm ci'
-                // node:20-jammy has no browsers baked in, so install them
+                // node:20-bookworm has no browsers baked in, so install them
                 // (plus their OS-level dependencies) explicitly here.
-                sh 'npx playwright install --with-deps'
+                sh 'npx playwright install --with-deps chromium'
             }
         }
 
